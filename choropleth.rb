@@ -26,14 +26,16 @@ class Choropleth
       @grid_polys.each do |poly|
         if poly.contains_point?(point)
           poly.data["count"] += 1
-          poly.add_data("area" => poly.area) if @options[:mode] == "density" and poly.data["area"].nil?
+          poly.add_data("area" => poly.area * 0.744854 * 111.32**2) if @options[:mode] == "density" and poly.data["area"].nil?
           break
         end
       end
     end
     if @options[:mode] == "density"
-      @grid_polys.each { |poly| poly.add_data("density" => poly.data["count"] / poly.data["area"].to_f) }
-    end
+      @grid_polys.each do |poly| 
+         poly.add_data("density" => ((poly.data["area"].to_f == 0) ? "Ops, no data yet" : (poly.data["count"] / poly.data["area"].to_f)))
+      end
+     end
     self
   end
 
@@ -46,5 +48,4 @@ class Choropleth
       file.write JSON.generate(geoJson)
     end
   end
-
 end
